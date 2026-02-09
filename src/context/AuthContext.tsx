@@ -1,8 +1,10 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut as firebaseSignOut,
   updateProfile,
 } from "firebase/auth";
@@ -33,6 +35,17 @@ export const AuthProvider = ({ children }) => {
     return credential.user;
   };
 
+  const signInWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+    const credential = await signInWithPopup(auth, provider);
+    await apiFetch("/users/bootstrap", {
+      method: "POST",
+      body: JSON.stringify({}),
+    });
+    return credential.user;
+  };
+
   const signUp = async (email, password, fullName, referrerCode) => {
     const credential = await createUserWithEmailAndPassword(auth, email, password);
     if (fullName) {
@@ -50,7 +63,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const value = useMemo(
-    () => ({ user, loading, signIn, signUp, signOut }),
+    () => ({ user, loading, signIn, signInWithGoogle, signUp, signOut }),
     [user, loading]
   );
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Zap, Eye, EyeOff, UserPlus } from "lucide-react";
+import { Zap, Eye, EyeOff, UserPlus, Chrome } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,7 +17,7 @@ export default function AuthPage() {
   const [referrerCode, setReferrerCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { signIn, signUp } = useAuth();
+  const { signIn, signInWithGoogle, signUp } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +28,19 @@ export default function AuthPage() {
       } else {
         await signUp(email, password, fullName, referrerCode);
       }
+      navigate("/dashboard");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Ocurrio un error";
+      toast.error(message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleGoogle = async () => {
+    setSubmitting(true);
+    try {
+      await signInWithGoogle();
       navigate("/dashboard");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Ocurrio un error";
@@ -163,6 +176,23 @@ export default function AuthPage() {
               {submitting ? "Procesando..." : isLogin ? "Iniciar Sesion" : "Crear Cuenta"}
             </Button>
           </form>
+
+          <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="h-px flex-1 bg-border" />
+            o
+            <span className="h-px flex-1 bg-border" />
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full border-border/60"
+            onClick={handleGoogle}
+            disabled={submitting}
+          >
+            <Chrome className="mr-2 h-4 w-4" />
+            Continuar con Google
+          </Button>
 
           {isLogin && (
             <p className="mt-4 text-center text-xs text-muted-foreground">
