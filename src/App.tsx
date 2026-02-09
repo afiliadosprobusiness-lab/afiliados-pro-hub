@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import ToolsPage from "./pages/ToolsPage";
 import NetworkPage from "./pages/NetworkPage";
 import SubscriptionPage from "./pages/SubscriptionPage";
+import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,12 +25,13 @@ const App = () => (
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<AuthPage />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/tools" element={<ToolsPage />} />
-            <Route path="/network" element={<NetworkPage />} />
-            <Route path="/subscription" element={<SubscriptionPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/tools" element={<ToolsPage />} />
+          <Route path="/network" element={<NetworkPage />} />
+          <Route path="/subscription" element={<SubscriptionPage />} />
+          <Route path="/admin" element={<AdminPage />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

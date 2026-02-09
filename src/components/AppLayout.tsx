@@ -9,9 +9,11 @@ import {
   ChevronLeft,
   Menu,
   Zap,
+  ShieldCheck,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 
 const navItems = [
   { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
@@ -27,6 +29,12 @@ interface AppLayoutProps {
 export default function AppLayout({ children }: AppLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
+  const adminEmails = (import.meta.env.VITE_ADMIN_EMAILS || "")
+    .split(",")
+    .map((email: string) => email.trim().toLowerCase())
+    .filter(Boolean);
+  const isAdmin = adminEmails.length && user?.email && adminEmails.includes(user.email.toLowerCase());
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -69,6 +77,20 @@ export default function AppLayout({ children }: AppLayoutProps) {
               </Link>
             );
           })}
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className={cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                location.pathname === "/admin"
+                  ? "bg-primary/10 text-primary glow-emerald"
+                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+              )}
+            >
+              <ShieldCheck className="h-5 w-5 shrink-0" />
+              {!collapsed && <span>Superadmin</span>}
+            </Link>
+          )}
         </nav>
 
         {/* Footer */}
