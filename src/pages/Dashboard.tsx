@@ -8,49 +8,22 @@ import {
   Check,
   TrendingUp,
   UserPlus,
-  ArrowUpRight,
+  ChevronRight,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import AppLayout from "@/components/AppLayout";
+import { apiFetch } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
-const stats = [
-  {
-    title: "Ganancias Totales",
-    value: "S/ 2,450.00",
-    change: "+12.5%",
-    icon: DollarSign,
-    variant: "emerald" as const,
-  },
-  {
-    title: "Saldo Disponible",
-    value: "S/ 1,280.00",
-    change: "Retirable",
-    icon: Wallet,
-    variant: "gold" as const,
-  },
-  {
-    title: "Plan Actual",
-    value: "Pro",
-    change: "Activo",
-    icon: Shield,
-    variant: "default" as const,
-  },
-  {
-    title: "Red Total",
-    value: "47",
-    change: "+3 esta semana",
-    icon: Users,
-    variant: "default" as const,
-  },
-];
-
-const recentActivity = [
-  { name: "María García", action: "se registró en tu red", time: "Hace 2 min", level: "Nivel 1" },
-  { name: "Carlos López", action: "activó Plan Pro", time: "Hace 15 min", level: "Nivel 1" },
-  { name: "Ana Martínez", action: "se registró en tu red", time: "Hace 1 hora", level: "Nivel 2" },
-  { name: "Pedro Ruiz", action: "pagó suscripción", time: "Hace 3 horas", level: "Nivel 1" },
-  { name: "Laura Díaz", action: "se registró en tu red", time: "Hace 5 horas", level: "Nivel 3" },
-];
+const statIcons = {
+  "Ganancias Totales": DollarSign,
+  "Saldo Disponible": Wallet,
+  "Plan Actual": Shield,
+  "Red Total": Users,
+};
 
 const container = {
   hidden: { opacity: 0 },
@@ -66,8 +39,38 @@ const item = {
 };
 
 export default function Dashboard() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
-  const referralLink = "afiliadospro.com/ref/USR_7X9K2";
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth");
+    }
+  }, [loading, user, navigate]);
+
+  const dashboardQuery = useQuery({
+    queryKey: ["dashboard"],
+    queryFn: () => apiFetch("/dashboard"),
+    enabled: !!user,
+  });
+
+  const meQuery = useQuery({
+    queryKey: ["me"],
+    queryFn: () => apiFetch("/me"),
+    enabled: !!user,
+  });
+
+  useEffect(() => {
+    if (dashboardQuery.error) {
+      toast.error("No se pudo cargar el dashboard");
+    }
+  }, [dashboardQuery.error]);
+
+  const stats = dashboardQuery.data?.stats ?? [];
+  const recentActivity = dashboardQuery.data?.recentActivity ?? [];
+  const referralCode = meQuery.data?.user?.referralCode || "";
+  const referralLink = referralCode ? `afiliadospro.com/ref/${referralCode}` : "afiliadospro.com/ref/";
 
   const handleCopy = () => {
     navigator.clipboard.writeText(`https://${referralLink}`);
@@ -75,67 +78,83 @@ export default function Dashboard() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const isLoading = loading || dashboardQuery.isLoading || meQuery.isLoading;
+
+  const activityItems = useMemo(() => {
+    if (!recentActivity.length) return [];
+    return recentActivity;
+  }, [recentActivity]);
+
   return (
     <AppLayout>
       <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
         {/* Header */}
         <motion.div variants={item}>
           <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
-            Bienvenido de vuelta 👋
+            Bienvenido de vuelta
           </h1>
           <p className="mt-1 text-muted-foreground">
-            Aquí tienes un resumen de tu actividad
+            Aqui tienes un resumen de tu actividad
           </p>
         </motion.div>
 
+        {isLoading && (
+          <motion.div variants={item} className="glass-card p-5 text-sm text-muted-foreground">
+            Cargando datos...
+          </motion.div>
+        )}
+
         {/* Stats Grid */}
         <motion.div variants={item} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat) => (
-            <div
-              key={stat.title}
-              className={`glass-card-hover p-5 ${
-                stat.variant === "emerald"
-                  ? "border-primary/20"
-                  : stat.variant === "gold"
-                  ? "border-accent/20"
-                  : ""
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {stat.title}
-                </span>
-                <div
-                  className={`flex h-8 w-8 items-center justify-center rounded-lg ${
-                    stat.variant === "emerald"
-                      ? "bg-primary/10 text-primary"
-                      : stat.variant === "gold"
-                      ? "bg-accent/10 text-accent"
-                      : "bg-secondary text-muted-foreground"
-                  }`}
-                >
-                  <stat.icon className="h-4 w-4" />
-                </div>
-              </div>
-              <p
-                className={`mt-3 font-display text-2xl font-bold ${
+          {stats.map((stat) => {
+            const Icon = statIcons[stat.title] || DollarSign;
+            return (
+              <div
+                key={stat.title}
+                className={`glass-card-hover p-5 ${
                   stat.variant === "emerald"
-                    ? "text-primary"
+                    ? "border-primary/20"
                     : stat.variant === "gold"
-                    ? "text-accent"
-                    : "text-foreground"
+                    ? "border-accent/20"
+                    : ""
                 }`}
               >
-                {stat.value}
-              </p>
-              <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                {stat.variant === "emerald" && (
-                  <TrendingUp className="h-3 w-3 text-primary" />
-                )}
-                {stat.change}
-              </p>
-            </div>
-          ))}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    {stat.title}
+                  </span>
+                  <div
+                    className={`flex h-8 w-8 items-center justify-center rounded-lg ${
+                      stat.variant === "emerald"
+                        ? "bg-primary/10 text-primary"
+                        : stat.variant === "gold"
+                        ? "bg-accent/10 text-accent"
+                        : "bg-secondary text-muted-foreground"
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                  </div>
+                </div>
+                <p
+                  className={`mt-3 font-display text-2xl font-bold ${
+                    stat.variant === "emerald"
+                      ? "text-primary"
+                      : stat.variant === "gold"
+                      ? "text-accent"
+                      : "text-foreground"
+                  }`}
+                >
+                  {stat.value}
+                </p>
+                <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                  {stat.variant === "emerald" && (
+                    <TrendingUp className="h-3 w-3 text-primary" />
+                  )}
+                  {stat.change}
+                </p>
+              </div>
+            );
+          })}
         </motion.div>
 
         {/* Referral Link */}
@@ -172,9 +191,14 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="space-y-3">
-            {recentActivity.map((activity, i) => (
+            {!activityItems.length && (
+              <div className="rounded-lg border border-border/50 bg-secondary/30 p-3 text-sm text-muted-foreground">
+                Aun no hay actividad registrada.
+              </div>
+            )}
+            {activityItems.map((activity) => (
               <div
-                key={i}
+                key={activity.id}
                 className="flex items-center gap-3 rounded-lg p-3 transition-colors hover:bg-secondary/50"
               >
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10">
@@ -190,6 +214,7 @@ export default function Dashboard() {
                 <span className="shrink-0 rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-muted-foreground">
                   {activity.level}
                 </span>
+                <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
               </div>
             ))}
           </div>

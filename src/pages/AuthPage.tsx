@@ -1,19 +1,40 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Zap, Eye, EyeOff, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [referrerCode, setReferrerCode] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
+  const { signIn, signUp } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Navigate to dashboard for demo
-    window.location.href = "/dashboard";
+    setSubmitting(true);
+    try {
+      if (isLogin) {
+        await signIn(email, password);
+      } else {
+        await signUp(email, password, fullName, referrerCode);
+      }
+      navigate("/dashboard");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Ocurrio un error";
+      toast.error(message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -55,7 +76,7 @@ export default function AuthPage() {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              Iniciar Sesión
+              Iniciar Sesion
             </button>
             <button
               onClick={() => setIsLogin(false)}
@@ -75,30 +96,36 @@ export default function AuthPage() {
                 <Label htmlFor="fullName" className="text-foreground/80">Nombre Completo</Label>
                 <Input
                   id="fullName"
-                  placeholder="Juan Pérez"
+                  placeholder="Juan Perez"
                   className="bg-secondary/50 border-border/50 focus:border-primary"
+                  value={fullName}
+                  onChange={(event) => setFullName(event.target.value)}
                 />
               </div>
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-foreground/80">Correo Electrónico</Label>
+              <Label htmlFor="email" className="text-foreground/80">Correo Electronico</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="tu@email.com"
                 className="bg-secondary/50 border-border/50 focus:border-primary"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-foreground/80">Contraseña</Label>
+              <Label htmlFor="password" className="text-foreground/80">Contrasena</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
+                  placeholder="********"
                   className="bg-secondary/50 border-border/50 focus:border-primary pr-10"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
                 />
                 <button
                   type="button"
@@ -115,13 +142,15 @@ export default function AuthPage() {
                 <Label htmlFor="referrerId" className="text-foreground/80">
                   <span className="flex items-center gap-1.5">
                     <UserPlus className="h-3.5 w-3.5" />
-                    Código de Referido (Opcional)
+                    Codigo de Referido (Opcional)
                   </span>
                 </Label>
                 <Input
                   id="referrerId"
                   placeholder="ID del referidor"
                   className="bg-secondary/50 border-border/50 focus:border-primary"
+                  value={referrerCode}
+                  onChange={(event) => setReferrerCode(event.target.value)}
                 />
               </div>
             )}
@@ -129,14 +158,15 @@ export default function AuthPage() {
             <Button
               type="submit"
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90 glow-emerald"
+              disabled={submitting}
             >
-              {isLogin ? "Iniciar Sesión" : "Crear Cuenta"}
+              {submitting ? "Procesando..." : isLogin ? "Iniciar Sesion" : "Crear Cuenta"}
             </Button>
           </form>
 
           {isLogin && (
             <p className="mt-4 text-center text-xs text-muted-foreground">
-              ¿Olvidaste tu contraseña?{" "}
+              Olvidaste tu contrasena?{" "}
               <button className="text-primary hover:underline">Recuperar</button>
             </p>
           )}

@@ -1,26 +1,13 @@
 import { motion } from "framer-motion";
 import { Lock, Unlock, Users, TrendingUp, ChevronRight } from "lucide-react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import AppLayout from "@/components/AppLayout";
 import { Progress } from "@/components/ui/progress";
-
-const levels = [
-  { level: 1, commission: 50, unlockPlan: "Básico", unlocked: true, members: 12 },
-  { level: 2, commission: 20, unlockPlan: "Pro", unlocked: true, members: 18 },
-  { level: 3, commission: 10, unlockPlan: "Elite", unlocked: false, members: 9 },
-  { level: 4, commission: 5, unlockPlan: "Elite", unlocked: false, members: 8 },
-];
-
-const networkMembers = [
-  { name: "María García", plan: "Pro", level: 1, earnings: "S/ 37.50" },
-  { name: "Carlos López", plan: "Pro", level: 1, earnings: "S/ 37.50" },
-  { name: "Ana Martínez", plan: "Básico", level: 2, earnings: "S/ 10.00" },
-  { name: "Pedro Ruiz", plan: "Elite", level: 1, earnings: "S/ 49.50" },
-  { name: "Laura Díaz", plan: "Básico", level: 2, earnings: "S/ 10.00" },
-  { name: "Roberto Sánchez", plan: "Pro", level: 3, earnings: "S/ 0.00" },
-];
-
-const totalPotential = 85;
-const currentPotential = 70;
+import { apiFetch } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 const container = {
   hidden: { opacity: 0 },
@@ -33,6 +20,31 @@ const item = {
 };
 
 export default function NetworkPage() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth");
+    }
+  }, [loading, user, navigate]);
+
+  const networkQuery = useQuery({
+    queryKey: ["network"],
+    queryFn: () => apiFetch("/network"),
+    enabled: !!user,
+  });
+
+  useEffect(() => {
+    if (networkQuery.error) {
+      toast.error("No se pudo cargar la red");
+    }
+  }, [networkQuery.error]);
+
+  const levels = networkQuery.data?.levels ?? [];
+  const members = networkQuery.data?.members ?? [];
+  const totalPotential = networkQuery.data?.totalPotential ?? 85;
+  const currentPotential = networkQuery.data?.currentPotential ?? 0;
   const missedPercentage = totalPotential - currentPotential;
 
   return (
@@ -80,7 +92,7 @@ export default function NetworkPage() {
               </p>
               <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Users className="h-3 w-3" />
-                {lvl.members} miembros
+                {lvl.members ?? 0} miembros
               </div>
             </div>
           ))}
@@ -94,7 +106,7 @@ export default function NetworkPage() {
                 Potencial de Ingresos
               </h2>
               <p className="mt-0.5 text-sm text-muted-foreground">
-                Estás aprovechando el {currentPotential}% de tu potencial
+                Estas aprovechando el {currentPotential}% de tu potencial
               </p>
             </div>
             <div className="flex items-center gap-1 text-accent">
@@ -119,13 +131,16 @@ export default function NetworkPage() {
             </h2>
           </div>
           <div className="divide-y divide-border/30">
-            {networkMembers.map((member, i) => (
+            {!members.length && (
+              <div className="p-4 text-sm text-muted-foreground">No hay miembros aun.</div>
+            )}
+            {members.map((member) => (
               <div
-                key={i}
+                key={member.id}
                 className="flex items-center gap-4 p-4 transition-colors hover:bg-secondary/30"
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 font-display text-sm font-bold text-primary">
-                  {member.name.split(" ").map(n => n[0]).join("")}
+                  {member.name?.split(" ").map((n) => n[0]).join("")}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground">{member.name}</p>
