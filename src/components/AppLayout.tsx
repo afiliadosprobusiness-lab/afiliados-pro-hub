@@ -14,6 +14,7 @@ import {
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
+import { isAdminEmail } from "@/lib/admin";
 
 const navItems = [
   { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
@@ -30,11 +31,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
-  const adminEmails = (import.meta.env.VITE_ADMIN_EMAILS || "")
-    .split(",")
-    .map((email: string) => email.trim().toLowerCase())
-    .filter(Boolean);
-  const isAdmin = adminEmails.length && user?.email && adminEmails.includes(user.email.toLowerCase());
+  const isAdmin = isAdminEmail(user?.email || "");
 
   return (
     <div className="flex min-h-screen w-full bg-background">

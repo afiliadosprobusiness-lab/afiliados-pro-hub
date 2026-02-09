@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
+import { isAdminEmail } from "@/lib/admin";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -24,11 +25,14 @@ export default function AuthPage() {
     setSubmitting(true);
     try {
       if (isLogin) {
-        await signIn(email, password);
+        const loggedUser = await signIn(email, password);
+        const target = isAdminEmail(loggedUser.email) ? "/admin" : "/dashboard";
+        navigate(target);
       } else {
-        await signUp(email, password, fullName, referrerCode);
+        const loggedUser = await signUp(email, password, fullName, referrerCode);
+        const target = isAdminEmail(loggedUser.email) ? "/admin" : "/dashboard";
+        navigate(target);
       }
-      navigate("/dashboard");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Ocurrio un error";
       toast.error(message);
@@ -40,8 +44,9 @@ export default function AuthPage() {
   const handleGoogle = async () => {
     setSubmitting(true);
     try {
-      await signInWithGoogle();
-      navigate("/dashboard");
+      const loggedUser = await signInWithGoogle();
+      const target = isAdminEmail(loggedUser.email) ? "/admin" : "/dashboard";
+      navigate(target);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Ocurrio un error";
       toast.error(message);

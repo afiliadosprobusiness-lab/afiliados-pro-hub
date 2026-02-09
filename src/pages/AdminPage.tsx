@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import { isAdminEmail } from "@/lib/admin";
 
 const container = {
   hidden: { opacity: 0 },
@@ -34,6 +35,9 @@ export default function AdminPage() {
   useEffect(() => {
     if (!loading && !user) {
       navigate("/auth");
+    }
+    if (!loading && user && !isAdminEmail(user.email)) {
+      navigate("/dashboard");
     }
   }, [loading, user, navigate]);
 
