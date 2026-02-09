@@ -134,4 +134,140 @@
   .animate-fade-in-up {
     animation: fadeInUp 0.5s ease-out forwards;
   }
+
+  /* ===== LANDING PAGE EFFECTS ===== */
+
+  /* Lightning flash overlay */
+  @keyframes lightningFlash {
+    0%, 95% { opacity: 0; }
+    96% { opacity: 0.6; }
+    97% { opacity: 0; }
+    98% { opacity: 0.4; }
+    99% { opacity: 0; }
+    100% { opacity: 0; }
+  }
+
+  .lightning-overlay {
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: radial-gradient(ellipse at 50% 0%, hsl(220 100% 85% / 0.15), transparent 70%);
+    animation: lightningFlash 8s ease-in-out infinite;
+  }
+
+  .lightning-overlay-2 {
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: radial-gradient(ellipse at 30% 0%, hsl(220 100% 90% / 0.1), transparent 60%);
+    animation: lightningFlash 12s ease-in-out 3s infinite;
+  }
+
+  /* Ember / fire particles */
+  @keyframes emberRise {
+    0% {
+      transform: translateY(0) translateX(0) scale(1);
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.8;
+    }
+    100% {
+      transform: translateY(-100vh) translateX(var(--drift, 20px)) scale(0.2);
+      opacity: 0;
+    }
+  }
+
+  .ember {
+    position: absolute;
+    bottom: -10px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: emberRise var(--duration, 4s) ease-out var(--delay, 0s) infinite;
+    filter: blur(0.5px);
+  }
+
+  .ember-orange {
+    background: radial-gradient(circle, hsl(25 100% 60%), hsl(15 100% 45%));
+    box-shadow: 0 0 6px 2px hsl(25 100% 50% / 0.6);
+  }
+
+  .ember-gold {
+    background: radial-gradient(circle, hsl(43 96% 65%), hsl(30 100% 50%));
+    box-shadow: 0 0 6px 2px hsl(43 96% 56% / 0.5);
+  }
+
+  .ember-red {
+    background: radial-gradient(circle, hsl(0 90% 55%), hsl(10 100% 40%));
+    box-shadow: 0 0 6px 2px hsl(0 90% 50% / 0.5);
+  }
+
+  /* Fire glow base */
+  @keyframes fireGlow {
+    0%, 100% {
+      opacity: 0.4;
+      transform: scaleY(1);
+    }
+    50% {
+      opacity: 0.7;
+      transform: scaleY(1.1);
+    }
+  }
+
+  .fire-base-glow {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: linear-gradient(to top,
+      hsl(15 100% 45% / 0.15),
+      hsl(25 100% 55% / 0.08),
+      transparent
+    );
+    pointer-events: none;
+    animation: fireGlow 3s ease-in-out infinite;
+  }
+
+  /* CTA glow pulse */
+  @keyframes ctaGlow {
+    0%, 100% {
+      box-shadow: 0 0 20px hsl(160 84% 39% / 0.3), 0 0 60px hsl(160 84% 39% / 0.1);
+    }
+    50% {
+      box-shadow: 0 0 30px hsl(160 84% 39% / 0.5), 0 0 80px hsl(160 84% 39% / 0.2);
+    }
+  }
+
+  .cta-glow {
+    animation: ctaGlow 2s ease-in-out infinite;
+  }
+
+  /* Gold fire border */
+  @keyframes goldFireBorder {
+    0%, 100% {
+      border-color: hsl(43 96% 56% / 0.4);
+      box-shadow: 0 0 20px hsl(43 96% 56% / 0.15), inset 0 0 20px hsl(43 96% 56% / 0.05);
+    }
+    50% {
+      border-color: hsl(25 100% 55% / 0.5);
+      box-shadow: 0 0 30px hsl(25 100% 55% / 0.2), inset 0 0 30px hsl(43 96% 56% / 0.08);
+    }
+  }
+
+  .gold-fire-card {
+    animation: goldFireBorder 3s ease-in-out infinite;
+  }
+
+  /* Floating animation */
+  @keyframes floatY {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .animate-float {
+    animation: floatY 4s ease-in-out infinite;
+  }
 }
