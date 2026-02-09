@@ -29,17 +29,28 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
   const isAdmin = isAdminEmail(user?.email || "");
 
   return (
     <div className="flex min-h-screen w-full bg-background">
+      {mobileOpen && (
+        <button
+          type="button"
+          aria-label="Cerrar menu"
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border/50 bg-card/50 backdrop-blur-xl transition-all duration-300 lg:relative",
-          collapsed ? "w-16" : "w-64"
+          "fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-border/50 bg-card/50 backdrop-blur-xl transition-all duration-300 lg:relative lg:translate-x-0",
+          mobileOpen ? "translate-x-0" : "-translate-x-full",
+          collapsed ? "lg:w-16" : "lg:w-64"
         )}
       >
         {/* Logo */}
@@ -62,6 +73,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={() => setMobileOpen(false)}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                   isActive
@@ -77,6 +89,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           {isAdmin && (
             <Link
               to="/admin"
+              onClick={() => setMobileOpen(false)}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                 location.pathname === "/admin"
@@ -91,7 +104,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-border/50 p-3">
+        <div className="hidden border-t border-border/50 p-3 lg:block">
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
@@ -110,7 +123,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       {/* Mobile Header */}
       <div className="fixed inset-x-0 top-0 z-40 flex h-14 items-center border-b border-border/50 bg-card/80 backdrop-blur-xl px-4 lg:hidden">
         <button
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={() => setMobileOpen((prev) => !prev)}
           className="rounded-lg p-2 text-muted-foreground hover:bg-secondary"
         >
           <Menu className="h-5 w-5" />

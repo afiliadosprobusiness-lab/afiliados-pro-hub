@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { PauseCircle, PlayCircle, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -20,17 +21,10 @@ const item = {
   show: { opacity: 1, y: 0 },
 };
 
-const planOptions = [
-  { value: "basic", label: "Basico" },
-  { value: "pro", label: "Pro" },
-  { value: "elite", label: "Elite" },
-];
-
 export default function AdminPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const [drafts, setDrafts] = useState({});
 
   useEffect(() => {
     if (!loading && !user) {
@@ -69,33 +63,29 @@ export default function AdminPage() {
     });
   }, [search, users]);
 
-  const handleDraftChange = (uid, patch) => {
-    setDrafts((prev) => ({
-      ...prev,
-      [uid]: {
-        ...(prev[uid] || {}),
-        ...patch,
-      },
-    }));
-  };
-
-  const handleSave = async (uid) => {
-    const payload = drafts[uid];
-    if (!payload) return;
+  const handleToggle = async (uid, disabled) => {
     try {
       await apiFetch(`/admin/users/${uid}`, {
         method: "PATCH",
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ disabled }),
       });
-      toast.success("Usuario actualizado");
-      setDrafts((prev) => {
-        const next = { ...prev };
-        delete next[uid];
-        return next;
-      });
+      toast.success(disabled ? "Usuario suspendido" : "Usuario activado");
       await usersQuery.refetch();
     } catch (error) {
-      toast.error("No se pudo actualizar");
+      toast.error("No se pudo actualizar el usuario");
+    }
+  };
+
+  const handleDelete = async (uid) => {
+    const confirmed = window.confirm("Eliminar este usuario? Esta accion no se puede deshacer.");
+    if (!confirmed) return;
+
+    try {
+      await apiFetch(`/admin/users/${uid}`, { method: "DELETE" });
+      toast.success("Usuario eliminado");
+      await usersQuery.refetch();
+    } catch (error) {
+      toast.error("No se pudo eliminar el usuario");
     }
   };
 
@@ -109,7 +99,7 @@ export default function AdminPage() {
             Superadmin
           </h1>
           <p className="mt-1 text-muted-foreground">
-            Gestiona usuarios, planes y estado de acceso.
+            Gestion de usuarios: activar, suspender o eliminar.
           </p>
         </motion.div>
 
@@ -141,52 +131,32 @@ export default function AdminPage() {
 
         <motion.div variants={item} className="space-y-4">
           {filtered.map((u) => {
-            const draft = drafts[u.uid] || {};
-            const planValue = draft.plan ?? u.plan ?? "basic";
-            const disabledValue = typeof draft.disabled === "boolean" ? draft.disabled : !!u.disabled;
-            const hasChanges = !!drafts[u.uid];
-
+            const isDisabled = !!u.disabled;
             return (
               <div key={u.uid} className="glass-card p-4">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="text-sm font-semibold text-foreground">{u.fullName || "Sin nombre"}</p>
                     <p className="text-xs text-muted-foreground">{u.email}</p>
                     <p className="text-xs text-muted-foreground">Codigo: {u.referralCode || "-"}</p>
+                    <p className="text-xs text-muted-foreground">Estado: {isDisabled ? "Suspendido" : "Activo"}</p>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">Plan</span>
-                      <select
-                        className="rounded-md border border-border bg-background px-2 py-1 text-xs"
-                        value={planValue}
-                        onChange={(event) => handleDraftChange(u.uid, { plan: event.target.value })}
-                      >
-                        {planOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <input
-                        type="checkbox"
-                        checked={!disabledValue}
-                        onChange={(event) => handleDraftChange(u.uid, { disabled: !event.target.checked })}
-                      />
-                      Activo
-                    </label>
-
-                    <Button
-                      size="sm"
-                      variant={hasChanges ? "default" : "outline"}
-                      disabled={!hasChanges}
-                      onClick={() => handleSave(u.uid)}
-                    >
-                      Guardar
+                  <div className="flex flex-wrap items-center gap-2">
+                    {isDisabled ? (
+                      <Button size="sm" onClick={() => handleToggle(u.uid, false)}>
+                        <PlayCircle className="mr-2 h-4 w-4" />
+                        Activar
+                      </Button>
+                    ) : (
+                      <Button size="sm" variant="outline" onClick={() => handleToggle(u.uid, true)}>
+                        <PauseCircle className="mr-2 h-4 w-4" />
+                        Suspender
+                      </Button>
+                    )}
+                    <Button size="sm" variant="destructive" onClick={() => handleDelete(u.uid)}>
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Eliminar
                     </Button>
                   </div>
                 </div>
