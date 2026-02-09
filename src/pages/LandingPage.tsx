@@ -163,25 +163,26 @@ export default function LandingPage() {
         >
           <motion.div variants={fadeUp} className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5">
             <Zap className="h-3.5 w-3.5 text-primary" />
-            <span className="text-xs font-medium text-primary">La revolución de los afiliados SaaS</span>
+            <span className="text-xs font-medium text-primary">Tu negocio digital empieza aquí</span>
           </motion.div>
 
           <motion.h1
             variants={fadeUp}
             className="font-display text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
           >
-            Domina el Mercado SaaS.{" "}
-            <span className="text-gradient-emerald">3 Herramientas Poderosas.</span>{" "}
-            <span className="text-gradient-gold">Un Solo Imperio.</span>
+            Gana Dinero Recomendando.{" "}
+            <span className="text-gradient-emerald">Sin Inventario. Sin Jefes.</span>{" "}
+            <span className="text-gradient-gold">Sin Límites.</span>
           </motion.h1>
 
           <motion.p
             variants={fadeUp}
             className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl"
           >
-            El primer ecosistema &ldquo;Todo en Uno&rdquo; que te paga hasta el{" "}
-            <span className="font-semibold text-accent">85% en comisiones</span> de red.
-            Únete a la revolución de Afiliados PRO.
+            Recibe hasta el{" "}
+            <span className="font-semibold text-accent">85% de comisión</span>{" "}
+            cada vez que alguien se une por tu enlace. Tú compartes, nosotros nos encargamos del resto.
+            Cobra mes a mes mientras tu red crece sola.
           </motion.p>
 
           <motion.div variants={fadeUp} className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -189,14 +190,14 @@ export default function LandingPage() {
               to="/auth"
               className="group flex items-center gap-2 rounded-xl bg-primary px-8 py-4 text-lg font-bold text-primary-foreground transition-all hover:bg-primary/90 cta-glow"
             >
-              EMPEZAR AHORA
+              QUIERO EMPEZAR A GANAR
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
             </Link>
             <a
               href="#arsenal"
               className="flex items-center gap-2 rounded-xl border border-border/50 px-6 py-4 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
             >
-              Ver Herramientas
+              ¿Cómo funciona?
               <ChevronRight className="h-4 w-4" />
             </a>
           </motion.div>
@@ -205,11 +206,11 @@ export default function LandingPage() {
           <motion.div variants={fadeUp} className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-primary" />
-              <span><span className="font-semibold text-foreground">2,400+</span> afiliados activos</span>
+              <span><span className="font-semibold text-foreground">2,400+</span> personas ya generan ingresos</span>
             </div>
             <div className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-accent" />
-              <span><span className="font-semibold text-foreground">S/ 1.2M</span> pagados en comisiones</span>
+              <span><span className="font-semibold text-foreground">S/ 1.2M</span> pagados a nuestra comunidad</span>
             </div>
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-primary" />
