@@ -14,16 +14,26 @@ import { apiFetch } from "@/lib/api";
 const AuthContext = createContext(null);
 const SESSION_KEY = "afp_session_started_at";
 const SESSION_TTL = 24 * 60 * 60 * 1000;
+const BOOTSTRAP_KEY_PREFIX = "afp_bootstrap_user_";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const logoutTimer = useRef(null);
+  const bootstrapTimer = useRef(null);
+  const bootstrapInFlight = useRef(false);
 
   const clearLogoutTimer = () => {
     if (logoutTimer.current) {
       clearTimeout(logoutTimer.current);
       logoutTimer.current = null;
+    }
+  };
+
+  const clearBootstrapTimer = () => {
+    if (bootstrapTimer.current) {
+      clearTimeout(bootstrapTimer.current);
+      bootstrapTimer.current = null;
     }
   };
 
@@ -44,9 +54,34 @@ export const AuthProvider = ({ children }) => {
     scheduleAutoLogout(now);
   };
 
+  const bootstrapUser = async (currentUser, attempt = 0) => {
+    if (!currentUser || bootstrapInFlight.current) return;
+    bootstrapInFlight.current = true;
+
+    try {
+      await apiFetch("/users/bootstrap", {
+        method: "POST",
+        body: JSON.stringify({}),
+      });
+      localStorage.setItem(`${BOOTSTRAP_KEY_PREFIX}${currentUser.uid}`, String(Date.now()));
+      clearBootstrapTimer();
+    } catch (error) {
+      if (attempt < 2) {
+        const delay = 2000 * (attempt + 1);
+        clearBootstrapTimer();
+        bootstrapTimer.current = setTimeout(() => {
+          bootstrapUser(currentUser, attempt + 1);
+        }, delay);
+      }
+    } finally {
+      bootstrapInFlight.current = false;
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       clearLogoutTimer();
+      clearBootstrapTimer();
 
       if (currentUser) {
         const startedAt = Number(localStorage.getItem(SESSION_KEY) || 0);
@@ -62,6 +97,11 @@ export const AuthProvider = ({ children }) => {
         } else {
           scheduleAutoLogout(startedAt);
         }
+
+        const bootstrapKey = `${BOOTSTRAP_KEY_PREFIX}${currentUser.uid}`;
+        if (!localStorage.getItem(bootstrapKey)) {
+          bootstrapUser(currentUser, 0);
+        }
       } else {
         localStorage.removeItem(SESSION_KEY);
       }
@@ -76,10 +116,7 @@ export const AuthProvider = ({ children }) => {
   const signIn = async (email, password) => {
     const credential = await signInWithEmailAndPassword(auth, email, password);
     touchSession();
-    await apiFetch("/users/bootstrap", {
-      method: "POST",
-      body: JSON.stringify({}),
-    });
+    await bootstrapUser(credential.user, 0);
     return credential.user;
   };
 
@@ -88,10 +125,7 @@ export const AuthProvider = ({ children }) => {
     provider.setCustomParameters({ prompt: "select_account" });
     const credential = await signInWithPopup(auth, provider);
     touchSession();
-    await apiFetch("/users/bootstrap", {
-      method: "POST",
-      body: JSON.stringify({}),
-    });
+    await bootstrapUser(credential.user, 0);
     return credential.user;
   };
 
@@ -105,11 +139,13 @@ export const AuthProvider = ({ children }) => {
       method: "POST",
       body: JSON.stringify({ fullName, referrerCode }),
     });
+    localStorage.setItem(`${BOOTSTRAP_KEY_PREFIX}${credential.user.uid}`, String(Date.now()));
     return credential.user;
   };
 
   const signOut = async () => {
     clearLogoutTimer();
+    clearBootstrapTimer();
     localStorage.removeItem(SESSION_KEY);
     await firebaseSignOut(auth);
   };
