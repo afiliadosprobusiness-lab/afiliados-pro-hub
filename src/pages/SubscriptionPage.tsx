@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Check, Sparkles, Crown, Zap } from "lucide-react";
+import { Check, Sparkles, Crown, Zap, Smartphone } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -7,6 +7,9 @@ import { toast } from "sonner";
 import AppLayout from "@/components/AppLayout";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const iconMap = {
   basic: Zap,
@@ -28,6 +31,11 @@ export default function SubscriptionPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [paypalLoading, setPaypalLoading] = useState("");
+  const [walletDialogOpen, setWalletDialogOpen] = useState(false);
+  const [walletPlan, setWalletPlan] = useState("basic");
+  const [walletMethod, setWalletMethod] = useState("yape");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [walletLoading, setWalletLoading] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -49,6 +57,80 @@ export default function SubscriptionPage() {
 
   const plans = subscriptionQuery.data?.plans ?? [];
   const currentPlan = subscriptionQuery.data?.currentPlan ?? "basic";
+
+  const loadCulqiScript = () =>
+    new Promise((resolve, reject) => {
+      if (window.Culqi) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = "https://checkout.culqi.com/js/v4";
+      script.async = true;
+      script.onload = () => resolve(true);
+      script.onerror = () => reject(new Error("No se pudo cargar Culqi"));
+      document.body.appendChild(script);
+    });
+
+  const openWalletDialog = (planId, method) => {
+    setWalletPlan(planId);
+    setWalletMethod(method);
+    setPhoneNumber("");
+    setWalletDialogOpen(true);
+  };
+
+  const handleWalletPayment = async () => {
+    if (!phoneNumber || phoneNumber.length < 9) {
+      toast.error("Ingresa un numero valido");
+      return;
+    }
+
+    try {
+      setWalletLoading(true);
+      const response = await apiFetch("/culqi/orders", {
+        method: "POST",
+        body: JSON.stringify({
+          plan: walletPlan,
+          phone: phoneNumber,
+          paymentMethod: walletMethod,
+        }),
+      });
+
+      await loadCulqiScript();
+
+      window.Culqi.publicKey = response.publicKey;
+      window.Culqi.settings({
+        title: "Afiliados PRO",
+        currency: response.currencyCode || "PEN",
+        amount: response.amount,
+        order: response.orderId,
+      });
+      window.Culqi.options({
+        lang: "es",
+        modal: true,
+        paymentMethods: {
+          tarjeta: false,
+          yape: walletMethod === "yape",
+          plin: walletMethod === "plin",
+        },
+      });
+
+      window.culqi = function () {
+        if (window.Culqi?.error) {
+          toast.error(window.Culqi.error.user_message || "Pago cancelado");
+        } else {
+          toast.success("Pago en proceso. En minutos veras tu plan activo.");
+        }
+      };
+
+      setWalletDialogOpen(false);
+      window.Culqi.open();
+    } catch (error) {
+      toast.error("No se pudo iniciar el pago con billetera");
+    } finally {
+      setWalletLoading(false);
+    }
+  };
 
   const handleSubscribe = async (planId) => {
     try {
@@ -195,11 +277,61 @@ export default function SubscriptionPage() {
                     ? "Redirigiendo..."
                     : `Actualizar a ${plan.name}`}
                 </button>
+
+                {!isCurrent && (
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                    <button
+                      type="button"
+                      className="flex items-center justify-center gap-2 rounded-lg border border-border/40 bg-secondary/40 px-3 py-2 text-muted-foreground hover:bg-secondary/60"
+                      onClick={() => openWalletDialog(plan.id, "yape")}
+                    >
+                      <Smartphone className="h-4 w-4" />
+                      Pagar con Yape
+                    </button>
+                    <button
+                      type="button"
+                      className="flex items-center justify-center gap-2 rounded-lg border border-border/40 bg-secondary/40 px-3 py-2 text-muted-foreground hover:bg-secondary/60"
+                      onClick={() => openWalletDialog(plan.id, "plin")}
+                    >
+                      <Smartphone className="h-4 w-4" />
+                      Pagar con Plin
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}
         </motion.div>
       </motion.div>
+
+      <Dialog open={walletDialogOpen} onOpenChange={setWalletDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Pagar con {walletMethod === "yape" ? "Yape" : "Plin"}</DialogTitle>
+            <DialogDescription>
+              Ingresa tu numero para generar el QR. Tu plan se activara cuando el pago sea confirmado.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Label htmlFor="phone">Numero de celular</Label>
+            <Input
+              id="phone"
+              placeholder="999999999"
+              value={phoneNumber}
+              onChange={(event) => setPhoneNumber(event.target.value.replace(/\D/g, ""))}
+            />
+          </div>
+          <DialogFooter>
+            <button
+              className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+              onClick={handleWalletPayment}
+              disabled={walletLoading}
+            >
+              {walletLoading ? "Procesando..." : "Generar QR"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }

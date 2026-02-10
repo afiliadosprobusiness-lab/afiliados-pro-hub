@@ -33,6 +33,8 @@ export default function NetworkPage() {
     queryKey: ["network"],
     queryFn: () => apiFetch("/network"),
     enabled: !!user,
+    refetchInterval: 30000,
+    refetchOnWindowFocus: true,
   });
 
   useEffect(() => {

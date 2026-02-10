@@ -76,7 +76,7 @@ export default function ToolsPage() {
             <p className="text-sm font-medium text-accent">Importante</p>
             <p className="mt-0.5 text-sm text-muted-foreground">
               Tu suscripcion activa estas herramientas automaticamente si usas el mismo
-              correo de Google/Firebase.
+              correo de Google.
             </p>
           </div>
         </motion.div>
