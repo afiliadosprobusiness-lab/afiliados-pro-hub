@@ -132,6 +132,7 @@ export default function AdminPage() {
         <motion.div variants={item} className="space-y-4">
           {filtered.map((u) => {
             const isDisabled = !!u.disabled;
+            const isOwner = isAdminEmail(u.email);
             return (
               <div key={u.uid} className="glass-card p-4">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -146,21 +147,29 @@ export default function AdminPage() {
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2">
-                    {isDisabled ? (
-                      <Button size="sm" onClick={() => handleToggle(u.uid, false)}>
-                        <PlayCircle className="mr-2 h-4 w-4" />
-                        Activar
-                      </Button>
+                    {isOwner ? (
+                      <div className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                        Propietario
+                      </div>
                     ) : (
-                      <Button size="sm" variant="outline" onClick={() => handleToggle(u.uid, true)}>
-                        <PauseCircle className="mr-2 h-4 w-4" />
-                        Suspender
-                      </Button>
+                      <>
+                        {isDisabled ? (
+                          <Button size="sm" onClick={() => handleToggle(u.uid, false)}>
+                            <PlayCircle className="mr-2 h-4 w-4" />
+                            Activar
+                          </Button>
+                        ) : (
+                          <Button size="sm" variant="outline" onClick={() => handleToggle(u.uid, true)}>
+                            <PauseCircle className="mr-2 h-4 w-4" />
+                            Suspender
+                          </Button>
+                        )}
+                        <Button size="sm" variant="destructive" onClick={() => handleDelete(u.uid)}>
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Eliminar
+                        </Button>
+                      </>
                     )}
-                    <Button size="sm" variant="destructive" onClick={() => handleDelete(u.uid)}>
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Eliminar
-                    </Button>
                   </div>
                 </div>
               </div>
