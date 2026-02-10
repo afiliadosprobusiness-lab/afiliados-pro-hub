@@ -46,6 +46,7 @@ export default function NetworkPage() {
   const totalPotential = networkQuery.data?.totalPotential ?? 85;
   const currentPotential = networkQuery.data?.currentPotential ?? 0;
   const missedPercentage = totalPotential - currentPotential;
+  const upline = networkQuery.data?.upline ?? null;
 
   return (
     <AppLayout>
@@ -57,6 +58,35 @@ export default function NetworkPage() {
           <p className="mt-1 text-muted-foreground">
             Visualiza tu estructura de comisiones en 4 niveles
           </p>
+        </motion.div>
+
+        <motion.div variants={item} className="glass-card p-5">
+          <h2 className="font-display text-lg font-semibold text-foreground">
+            Tu Patrocinador
+          </h2>
+          {upline ? (
+            <div className="mt-3 flex items-center justify-between rounded-xl border border-border/40 bg-secondary/40 p-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Te invito</p>
+                <p className="text-base font-semibold text-foreground">
+                  {upline.name || "Sin nombre"}
+                </p>
+              </div>
+              <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                upline.plan === "Elite"
+                  ? "bg-accent/10 text-accent"
+                  : upline.plan === "Pro"
+                  ? "bg-primary/10 text-primary"
+                  : "bg-secondary text-muted-foreground"
+              }`}>
+                {upline.plan || "Basico"}
+              </span>
+            </div>
+          ) : (
+            <p className="mt-2 text-sm text-muted-foreground">
+              Nadie te invito. Tu red empieza contigo.
+            </p>
+          )}
         </motion.div>
 
         {/* Commission Tiers */}
@@ -140,10 +170,10 @@ export default function NetworkPage() {
                 className="flex items-center gap-4 p-4 transition-colors hover:bg-secondary/30"
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 font-display text-sm font-bold text-primary">
-                  {member.name?.split(" ").map((n) => n[0]).join("")}
+                  {(member.name || "N").split(" ").map((n) => n[0]).join("")}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground">{member.name}</p>
+                  <p className="text-sm font-medium text-foreground">{member.name || "Sin nombre"}</p>
                   <p className="text-xs text-muted-foreground">Nivel {member.level}</p>
                 </div>
                 <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${
@@ -153,10 +183,10 @@ export default function NetworkPage() {
                     ? "bg-primary/10 text-primary"
                     : "bg-secondary text-muted-foreground"
                 }`}>
-                  {member.plan}
+                  {member.plan || "Basico"}
                 </span>
                 <span className="shrink-0 text-sm font-medium text-foreground">
-                  {member.earnings}
+                  {member.earnings || "$ 0.00"}
                 </span>
                 <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
               </div>
