@@ -10,18 +10,29 @@ const fallbackFirebaseConfig = {
   appId: "1:820933542671:web:df72c4f86030cf3d7bb47a",
 };
 
+const expectedProjectId = fallbackFirebaseConfig.projectId;
+const hasExpectedEnvProject =
+  (import.meta.env.VITE_FIREBASE_PROJECT_ID || "").trim() === expectedProjectId;
+
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || fallbackFirebaseConfig.apiKey,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || fallbackFirebaseConfig.authDomain,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || fallbackFirebaseConfig.projectId,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || fallbackFirebaseConfig.storageBucket,
-  messagingSenderId:
-    import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || fallbackFirebaseConfig.messagingSenderId,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || fallbackFirebaseConfig.appId,
+  apiKey: hasExpectedEnvProject ? import.meta.env.VITE_FIREBASE_API_KEY : fallbackFirebaseConfig.apiKey,
+  authDomain: hasExpectedEnvProject
+    ? import.meta.env.VITE_FIREBASE_AUTH_DOMAIN
+    : fallbackFirebaseConfig.authDomain,
+  projectId: hasExpectedEnvProject
+    ? import.meta.env.VITE_FIREBASE_PROJECT_ID
+    : fallbackFirebaseConfig.projectId,
+  storageBucket: hasExpectedEnvProject
+    ? import.meta.env.VITE_FIREBASE_STORAGE_BUCKET
+    : fallbackFirebaseConfig.storageBucket,
+  messagingSenderId: hasExpectedEnvProject
+    ? import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID
+    : fallbackFirebaseConfig.messagingSenderId,
+  appId: hasExpectedEnvProject ? import.meta.env.VITE_FIREBASE_APP_ID : fallbackFirebaseConfig.appId,
 };
 
 if (!firebaseConfig.apiKey) {
-  throw new Error("Missing VITE_FIREBASE_API_KEY");
+  throw new Error("Missing Firebase API key");
 }
 
 const app = initializeApp(firebaseConfig);

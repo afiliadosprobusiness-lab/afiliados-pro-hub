@@ -70,7 +70,7 @@ export default function Dashboard() {
   const stats = dashboardQuery.data?.stats ?? [];
   const recentActivity = dashboardQuery.data?.recentActivity ?? [];
   const referralCode = meQuery.data?.user?.referralCode || "";
-  const baseUrl = (import.meta.env.VITE_PUBLIC_URL || window.location.origin).replace(/\/$/, "");
+  const baseUrl = window.location.origin.replace(/\/$/, "");
   const referralLink = referralCode ? `${baseUrl}/ref/${referralCode}` : `${baseUrl}/ref/`;
 
   const handleCopy = () => {
@@ -165,7 +165,6 @@ export default function Dashboard() {
           </h2>
           <div className="flex items-center gap-2">
             <div className="flex-1 rounded-lg border border-border/50 bg-secondary/50 px-4 py-2.5">
-              <span className="text-sm text-muted-foreground">https://</span>
               <span className="text-sm font-medium text-foreground">{referralLink}</span>
             </div>
             <button
