@@ -1,7 +1,8 @@
 const normalizeEmail = (value) => value.trim().toLowerCase();
+const fallbackAdminEmails = "afiliadosprobusiness@gmail.com";
 
 export const getAdminEmails = () =>
-  (import.meta.env.VITE_ADMIN_EMAILS || "")
+  (import.meta.env.VITE_ADMIN_EMAILS || fallbackAdminEmails)
     .split(",")
     .map(normalizeEmail)
     .filter(Boolean);

@@ -1,6 +1,7 @@
 import { auth } from "@/lib/firebase";
 
-const baseUrl = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
+const fallbackBackendUrl = "https://afiliados-pro-hub-backend-866073833887.us-central1.run.app";
+const baseUrl = (import.meta.env.VITE_BACKEND_URL || fallbackBackendUrl).replace(/\/$/, "");
 
 const getAuthToken = async () => {
   const user = auth.currentUser;
@@ -12,7 +13,7 @@ const getAuthToken = async () => {
 
 export const apiFetch = async (path, options = {}) => {
   if (!baseUrl) {
-    throw new Error("Missing VITE_BACKEND_URL");
+    throw new Error("Missing backend URL");
   }
 
   const token = await getAuthToken();
@@ -37,7 +38,7 @@ export const apiFetch = async (path, options = {}) => {
 
 export const apiFetchPublic = async (path, options = {}) => {
   if (!baseUrl) {
-    throw new Error("Missing VITE_BACKEND_URL");
+    throw new Error("Missing backend URL");
   }
 
   const response = await fetch(`${baseUrl}${path}`, {
