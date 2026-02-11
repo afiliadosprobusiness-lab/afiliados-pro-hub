@@ -12,6 +12,7 @@ import NetworkPage from "./pages/NetworkPage";
 import SubscriptionPage from "./pages/SubscriptionPage";
 import AdminPage from "./pages/AdminPage";
 import ReferralPage from "./pages/ReferralPage";
+import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/tools" element={<ToolsPage />} />
           <Route path="/network" element={<NetworkPage />} />
           <Route path="/subscription" element={<SubscriptionPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -1,10 +1,11 @@
-import { ReactNode } from "react";
+﻿import { ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Wrench,
   Users,
   CreditCard,
+  Settings,
   LogOut,
   ChevronLeft,
   Menu,
@@ -20,11 +21,13 @@ const userNavItems = [
   { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { title: "Mis Herramientas", path: "/tools", icon: Wrench },
   { title: "Mi Red", path: "/network", icon: Users },
-  { title: "Suscripción", path: "/subscription", icon: CreditCard },
+  { title: "SuscripciÃ³n", path: "/subscription", icon: CreditCard },
+  { title: "Configuracion", path: "/settings", icon: Settings },
 ];
 
 const adminNavItems = [
   { title: "Superadmin", path: "/admin", icon: ShieldCheck },
+  { title: "Configuracion", path: "/settings", icon: Settings },
 ];
 
 interface AppLayoutProps {
@@ -158,3 +161,4 @@ export default function AppLayout({ children }: AppLayoutProps) {
     </div>
   );
 }
+
