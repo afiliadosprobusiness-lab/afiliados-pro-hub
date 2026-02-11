@@ -21,7 +21,7 @@ const userNavItems = [
   { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { title: "Mis Herramientas", path: "/tools", icon: Wrench },
   { title: "Mi Red", path: "/network", icon: Users },
-  { title: "SuscripciÃ³n", path: "/subscription", icon: CreditCard },
+  { title: "Suscripción", path: "/subscription", icon: CreditCard },
   { title: "Configuracion", path: "/settings", icon: Settings },
 ];
 
