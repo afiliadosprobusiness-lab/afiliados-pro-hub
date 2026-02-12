@@ -32,6 +32,8 @@ Afiliados PRO es el motor de distribución: permite a afiliados promocionar un b
 - Consistencia visual:
   - Reutilizar `src/components/ui/*` (shadcn).
   - Evitar estilos inline salvo necesidad.
+- Landing:
+  - Incluye sección de testimonios en carrusel (Embla via `src/components/ui/carousel.tsx`).
 
 ## Convenciones de código
 - TypeScript estricto (evitar `any`).
@@ -45,4 +47,3 @@ Afiliados PRO es el motor de distribución: permite a afiliados promocionar un b
 - Backend URL: via `VITE_BACKEND_URL` (o equivalente según repo).
 - Admin/Superadmin:
   - UI de superadmin existe; el acceso se controla por email permitido y por backend.
-

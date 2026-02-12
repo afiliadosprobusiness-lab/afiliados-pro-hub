@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 interface Window {
-  Culqi?: any;
+  Culqi?: unknown;
   culqi?: () => void;
-  CulqiCheckout?: any;
+  CulqiCheckout?: unknown;
 }

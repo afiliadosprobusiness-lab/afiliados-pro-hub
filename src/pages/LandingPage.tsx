@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import EmberParticles from "@/components/EmberParticles";
 import LightningEffect from "@/components/LightningEffect";
+import TestimonialsSection from "@/components/landing/TestimonialsSection";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -136,13 +137,33 @@ export default function LandingPage() {
               <span className="font-display text-lg font-bold tracking-tight">
                 Afiliados<span className="text-primary">PRO</span>
               </span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link
-                to="/auth"
-                className="rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Iniciar Sesión
+             </div>
+             <div className="hidden items-center gap-1 md:flex">
+               <a
+                 href="#arsenal"
+                 className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+               >
+                 Herramientas
+               </a>
+               <a
+                 href="#testimonios"
+                 className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+               >
+                 Testimonios
+               </a>
+               <a
+                 href="#precios"
+                 className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+               >
+                 Planes
+               </a>
+             </div>
+             <div className="flex items-center gap-3">
+               <Link
+                 to="/auth"
+                 className="rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+               >
+                 Iniciar Sesión
               </Link>
               <Link
                 to="/auth"
@@ -331,8 +352,10 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <TestimonialsSection />
+
       {/* ========= PRICING SECTION ========= */}
-      <section className="relative px-4 py-24">
+      <section className="relative px-4 py-24" id="precios">
         <EmberParticles count={15} />
         <div className="fire-base-glow" />
 
