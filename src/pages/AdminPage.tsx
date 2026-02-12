@@ -1,11 +1,19 @@
 import { motion } from "framer-motion";
-import { PauseCircle, PlayCircle, Trash2 } from "lucide-react";
+import { MoreVertical, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
@@ -63,13 +71,13 @@ export default function AdminPage() {
     });
   }, [search, users]);
 
-  const handleToggle = async (uid, disabled) => {
+  const handleUpdateUser = async (uid, payload) => {
     try {
       await apiFetch(`/admin/users/${uid}`, {
         method: "PATCH",
-        body: JSON.stringify({ disabled }),
+        body: JSON.stringify(payload),
       });
-      toast.success(disabled ? "Usuario suspendido" : "Usuario activado");
+      toast.success("Usuario actualizado");
       await usersQuery.refetch();
     } catch (error) {
       toast.error("No se pudo actualizar el usuario");
@@ -90,6 +98,26 @@ export default function AdminPage() {
   };
 
   const isLoading = loading || usersQuery.isLoading;
+
+  const planLabel = (plan) => {
+    if (plan === "elite") return "Elite";
+    if (plan === "pro") return "Pro";
+    return "Basico";
+  };
+
+  const statusLabel = (status, disabled) => {
+    if (status === "TRIAL") return "Trial";
+    if (status === "SUSPENDED") return "Suspendido";
+    if (status === "ACTIVE") return "Activo";
+    return disabled ? "Suspendido" : "Activo";
+  };
+
+  const MenuItem = ({ title, subtitle }) => (
+    <div className="flex flex-col">
+      <span className="text-sm font-medium">{title}</span>
+      <span className="text-xs text-muted-foreground">{subtitle}</span>
+    </div>
+  );
 
   return (
     <AppLayout>
@@ -133,6 +161,8 @@ export default function AdminPage() {
           {filtered.map((u) => {
             const isDisabled = !!u.disabled;
             const isOwner = isAdminEmail(u.email);
+            const currentPlan = u.plan || "basic";
+            const currentStatus = u.status || null;
             return (
               <div key={u.uid} className="glass-card p-4">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -141,7 +171,8 @@ export default function AdminPage() {
                     <p className="text-xs text-muted-foreground">{u.email}</p>
                     <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
                       <span>Codigo: {u.referralCode || "-"}</span>
-                      <span>Estado: {isDisabled ? "Suspendido" : "Activo"}</span>
+                      <span>Plan: {planLabel(currentPlan)}</span>
+                      <span>Estado: {statusLabel(currentStatus, isDisabled)}</span>
                       <span>Afiliado por: {u.referredByName || u.referredBy || "-"}</span>
                     </div>
                   </div>
@@ -153,21 +184,93 @@ export default function AdminPage() {
                       </div>
                     ) : (
                       <>
-                        {isDisabled ? (
-                          <Button size="sm" onClick={() => handleToggle(u.uid, false)}>
-                            <PlayCircle className="mr-2 h-4 w-4" />
-                            Activar
-                          </Button>
-                        ) : (
-                          <Button size="sm" variant="outline" onClick={() => handleToggle(u.uid, true)}>
-                            <PauseCircle className="mr-2 h-4 w-4" />
-                            Suspender
-                          </Button>
-                        )}
-                        <Button size="sm" variant="destructive" onClick={() => handleDelete(u.uid)}>
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Eliminar
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="outline">
+                              <MoreVertical className="mr-2 h-4 w-4" />
+                              Acciones
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-80">
+                            <DropdownMenuLabel>Acciones de usuario</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+
+                            <DropdownMenuItem
+                              onSelect={() => handleUpdateUser(u.uid, { plan: "pro", status: "ACTIVE", disabled: false })}
+                            >
+                              <MenuItem
+                                title="Activar plan PRO"
+                                subtitle="Pasa el estado a Activo y asigna PRO."
+                              />
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onSelect={() => handleUpdateUser(u.uid, { plan: "elite", status: "ACTIVE", disabled: false })}
+                            >
+                              <MenuItem
+                                title="Activar plan ELITE"
+                                subtitle="Pasa el estado a Activo y asigna ELITE."
+                              />
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onSelect={() => handleUpdateUser(u.uid, { plan: "basic", status: "ACTIVE", disabled: false })}
+                            >
+                              <MenuItem
+                                title="Activar plan BASICO"
+                                subtitle="Pasa el estado a Activo y asigna BASICO."
+                              />
+                            </DropdownMenuItem>
+
+                            <DropdownMenuSeparator />
+
+                            <DropdownMenuItem onSelect={() => handleUpdateUser(u.uid, { plan: "pro" })}>
+                              <MenuItem
+                                title="Cambiar plan a PRO (sin tocar estado)"
+                                subtitle="Solo cambia el plan. No cambia Activo/Suspendido/Trial."
+                              />
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleUpdateUser(u.uid, { plan: "elite" })}>
+                              <MenuItem
+                                title="Cambiar plan a ELITE (sin tocar estado)"
+                                subtitle="Solo cambia el plan. No cambia Activo/Suspendido/Trial."
+                              />
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleUpdateUser(u.uid, { plan: "basic" })}>
+                              <MenuItem
+                                title="Cambiar plan a BASICO (sin tocar estado)"
+                                subtitle="Solo cambia el plan. No cambia Activo/Suspendido/Trial."
+                              />
+                            </DropdownMenuItem>
+
+                            <DropdownMenuSeparator />
+
+                            <DropdownMenuItem onSelect={() => handleUpdateUser(u.uid, { status: "TRIAL", disabled: false })}>
+                              <MenuItem
+                                title="Marcar como Trial"
+                                subtitle="Cambia el estado a Trial. El plan queda igual."
+                              />
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onSelect={() => handleUpdateUser(u.uid, { status: "SUSPENDED", disabled: true })}
+                            >
+                              <MenuItem
+                                title="Suspender acceso"
+                                subtitle="Bloquea el acceso sin eliminar la cuenta."
+                              />
+                            </DropdownMenuItem>
+
+                            <DropdownMenuSeparator />
+
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onSelect={() => handleDelete(u.uid)}
+                            >
+                              <div className="flex items-center gap-2">
+                                <Trash2 className="h-4 w-4" />
+                                <MenuItem title="Eliminar usuario" subtitle="Esta accion no se puede deshacer." />
+                              </div>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </>
                     )}
                   </div>
