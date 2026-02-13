@@ -36,6 +36,7 @@ Afiliados PRO es el motor de distribución: permite a afiliados promocionar un b
   - Incluye sección de testimonios en carrusel (Embla via `src/components/ui/carousel.tsx`).
   - Hero con título corto y directo, destacando keywords de conversión (sin inventario y hasta 85% de comisión).
   - Testimonios con foto por persona usando `Avatar` (`src/components/ui/avatar.tsx`) y fallback a iniciales.
+  - Cards de "Tu Arsenal Digital" incluyen enlace externo por Micro-SaaS y abren en nueva ventana.
   - Sección FAQ en acordeon (`src/components/landing/FaqSection.tsx`) ubicada al final de la landing, despues del CTA final y antes del footer.
 
 ## Convenciones de código

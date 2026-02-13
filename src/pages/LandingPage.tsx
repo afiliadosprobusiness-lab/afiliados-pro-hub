@@ -13,6 +13,7 @@ import {
   Users,
   Shield,
   ChevronRight,
+  ArrowUpRight,
 } from "lucide-react";
 import EmberParticles from "@/components/EmberParticles";
 import LightningEffect from "@/components/LightningEffect";
@@ -36,20 +37,23 @@ const tools = [
     icon: Calculator,
     color: "text-primary",
     bg: "bg-primary/10",
+    href: "https://cont-app-lovat.vercel.app/",
   },
   {
-    name: "Fast Page",
+    name: "FastPage",
     desc: "Crea landing pages profesionales en minutos. Drag & Drop, templates optimizados para conversión.",
     icon: Layout,
     color: "text-blue-400",
     bg: "bg-blue-500/10",
+    href: "https://fastpage-eight.vercel.app/",
   },
   {
-    name: "Lead Widget",
+    name: "Leads Widget",
     desc: "Captura leads desde cualquier web o red social. Chatbots, formularios y seguimiento automático.",
     icon: MessageSquare,
     color: "text-purple-400",
     bg: "bg-purple-500/10",
+    href: "https://leads-widget.vercel.app/",
   },
 ];
 
@@ -277,7 +281,7 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.15 }}
-                className="glass-card-hover group p-7"
+                className="glass-card-hover group flex h-full flex-col p-7"
               >
                 <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${tool.bg} transition-transform duration-300 group-hover:scale-110`}>
                   <tool.icon className={`h-7 w-7 ${tool.color}`} />
@@ -292,6 +296,16 @@ export default function LandingPage() {
                   <span>Incluido en tu plan</span>
                   <Check className="h-4 w-4" />
                 </div>
+                <a
+                  href={tool.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-accent transition-colors hover:text-accent/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  aria-label={`Abrir ${tool.name} en una nueva ventana`}
+                >
+                  Ir a {tool.name}
+                  <ArrowUpRight className="h-4 w-4" />
+                </a>
               </motion.div>
             ))}
           </div>
