@@ -191,9 +191,9 @@ export default function LandingPage() {
             variants={fadeUp}
             className="font-display text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
           >
-            Gana Dinero Recomendando.{" "}
-            <span className="text-gradient-emerald">Sin Inventario. Sin Jefes.</span>{" "}
-            <span className="text-gradient-gold">Sin Límites.</span>
+            Gana con afiliados.{" "}
+            <span className="text-gradient-emerald">Sin inventario.</span>{" "}
+            <span className="text-gradient-gold">Hasta 85% de comisión.</span>
           </motion.h1>
 
           <motion.p

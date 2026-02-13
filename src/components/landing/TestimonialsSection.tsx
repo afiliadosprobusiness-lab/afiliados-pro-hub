@@ -12,11 +12,13 @@ import {
 } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 type Testimonial = {
   name: string;
   role: string;
   quote: string;
+  avatarUrl: string;
   highlight?: string;
 };
 
@@ -26,6 +28,7 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Consultora de marketing",
     quote:
       "Me registré, compartí mi enlace y en la primera semana ya estaba cobrando. El panel es claro y las comisiones se ven en tiempo real.",
+    avatarUrl: "https://randomuser.me/api/portraits/women/44.jpg",
     highlight: "Primeros ingresos en 7 días",
   },
   {
@@ -33,6 +36,7 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Freelancer (diseño web)",
     quote:
       "Lo mejor es que no vendo humo: recomiendo herramientas que uso con mis clientes. Así comparto sin vergüenza y con confianza.",
+    avatarUrl: "https://randomuser.me/api/portraits/men/32.jpg",
     highlight: "Recomendación con confianza",
   },
   {
@@ -40,6 +44,7 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Emprendedora",
     quote:
       "Fast Page me ayudó a mejorar conversiones y AfiliadosPRO me paga mes a mes por mis referidos. Es de las pocas plataformas que cumplen.",
+    avatarUrl: "https://randomuser.me/api/portraits/women/68.jpg",
     highlight: "Comisión recurrente",
   },
   {
@@ -47,6 +52,7 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Agencia (Performance)",
     quote:
       "La red por niveles es un game changer. Escalamos con contenido orgánico y ahora el ingreso es mucho más estable.",
+    avatarUrl: "https://randomuser.me/api/portraits/men/75.jpg",
     highlight: "Red hasta 4 niveles",
   },
   {
@@ -54,6 +60,7 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Contadora independiente",
     quote:
       "ContApp es brutal para mis clientes y el soporte responde rápido. La experiencia se siente premium y eso facilita recomendar.",
+    avatarUrl: "https://randomuser.me/api/portraits/women/52.jpg",
     highlight: "Soporte rápido",
   },
   {
@@ -61,9 +68,18 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Creador de contenido",
     quote:
       "El onboarding es simple. En minutos ya tenía mi link y el material listo. Me encanta que todo sea mobile-first.",
+    avatarUrl: "https://randomuser.me/api/portraits/men/41.jpg",
     highlight: "Onboarding rápido",
   },
 ];
+
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("");
+}
 
 function Stars({ className }: { className?: string }) {
   return (
@@ -143,13 +159,16 @@ export default function TestimonialsSection() {
                       </blockquote>
 
                       <div className="mt-6 flex items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 font-display text-sm font-bold text-primary">
-                          {t.name
-                            .split(" ")
-                            .slice(0, 2)
-                            .map((part) => part[0])
-                            .join("")}
-                        </div>
+                        <Avatar className="h-10 w-10 ring-1 ring-primary/20">
+                          <AvatarImage
+                            src={t.avatarUrl}
+                            alt={`Foto de ${t.name}`}
+                            loading="lazy"
+                          />
+                          <AvatarFallback className="bg-primary/10 font-display text-sm font-bold text-primary">
+                            {getInitials(t.name)}
+                          </AvatarFallback>
+                        </Avatar>
                         <div className="min-w-0">
                           <div className="truncate font-medium text-foreground">{t.name}</div>
                           <div className="truncate text-xs text-muted-foreground">{t.role}</div>
