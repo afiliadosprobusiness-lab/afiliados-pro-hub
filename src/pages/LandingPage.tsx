@@ -360,7 +360,6 @@ export default function LandingPage() {
       </section>
 
       <TestimonialsSection />
-      <FaqSection />
 
       {/* ========= PRICING SECTION ========= */}
       <section className="relative px-4 py-24" id="precios">
@@ -512,6 +511,8 @@ export default function LandingPage() {
           </Link>
         </motion.div>
       </section>
+
+      <FaqSection />
 
       {/* Footer */}
       <footer className="border-t border-border/30 px-4 py-8">
