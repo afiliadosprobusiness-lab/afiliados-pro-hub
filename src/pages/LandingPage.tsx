@@ -17,6 +17,7 @@ import {
 import EmberParticles from "@/components/EmberParticles";
 import LightningEffect from "@/components/LightningEffect";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
+import FaqSection from "@/components/landing/FaqSection";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -150,6 +151,12 @@ export default function LandingPage() {
                  className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                >
                  Testimonios
+               </a>
+               <a
+                 href="#faqs"
+                 className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+               >
+                 FAQs
                </a>
                <a
                  href="#precios"
@@ -353,6 +360,7 @@ export default function LandingPage() {
       </section>
 
       <TestimonialsSection />
+      <FaqSection />
 
       {/* ========= PRICING SECTION ========= */}
       <section className="relative px-4 py-24" id="precios">

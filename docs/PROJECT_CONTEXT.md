@@ -36,6 +36,7 @@ Afiliados PRO es el motor de distribución: permite a afiliados promocionar un b
   - Incluye sección de testimonios en carrusel (Embla via `src/components/ui/carousel.tsx`).
   - Hero con título corto y directo, destacando keywords de conversión (sin inventario y hasta 85% de comisión).
   - Testimonios con foto por persona usando `Avatar` (`src/components/ui/avatar.tsx`) y fallback a iniciales.
+  - Sección FAQ en acordeon (`src/components/landing/FaqSection.tsx`) para responder dudas comunes y reducir fricción antes del registro.
 
 ## Convenciones de código
 - TypeScript estricto (evitar `any`).
